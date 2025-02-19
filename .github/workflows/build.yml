@@ -1,0 +1,42 @@
+name: Build for Windows 32-bit
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: i686-pc-windows-gnu
+        override: true
+
+    - name: Install GTK dependencies
+      run: |
+        choco install mingw --version 8.1.0 --force --allow-downgrade
+        choco install gtk-runtime --version 3.24.24 --force
+        refreshenv
+
+    - name: Install Rust target
+      run: rustup target add i686-pc-windows-gnu
+
+    - name: Build the project
+      run: cargo build --target i686-pc-windows-gnu --release
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-32bit-release
+        path: target/i686-pc-windows-gnu/release/printer_test.exe
