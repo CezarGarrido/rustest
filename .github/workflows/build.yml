@@ -11,7 +11,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -24,15 +26,11 @@ jobs:
         override: true
 
     - name: Install MSYS2 and dependencies
-      shell: msys2 {0}
       run: |
-        # Atualizar o MSYS2 e instalar o pkg-config e dependências do GTK
-        pacman -Syu --noconfirm
         pacman -S --noconfirm mingw-w64-i686-pkg-config mingw-w64-i686-gtk3
 
     - name: Set up environment variables
       run: |
-        # Configurar o PATH para incluir o MSYS2 e o GTK
         $msysPath = "C:\msys64\mingw32\bin"
         $gtkPath = "C:\msys64\mingw32\lib\pkgconfig"
         [System.Environment]::SetEnvironmentVariable("PATH", "$env:PATH;$msysPath", [System.EnvironmentVariableTarget]::Process)
