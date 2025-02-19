@@ -20,23 +20,29 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-        target: i686-pc-windows-gnu
+        target: i686-pc-windows-msvc
         override: true
 
     - name: Install GTK dependencies
       run: |
-        choco install mingw --version 8.1.0 --force --allow-downgrade
-        choco install gtk-runtime --version 3.24.24 --force
-        refreshenv
+        # Baixar e extrair o GTK para Windows
+        Invoke-WebRequest -Uri "https://github.com/miegir/GTK-for-Windows-Runtime-Environment-Installer-32/releases/download/2021-12-08/gtk3-runtime-3.24.30-2021-12-08-ts-win32.exe" -OutFile "gtk-runtime.exe"
+        Start-Process -FilePath "gtk-runtime.exe" -ArgumentList "/S" -Wait
+        # Adicionar o GTK ao PATH
+        $gtkPath = "C:\gtk3"
+        [System.Environment]::SetEnvironmentVariable("PATH", "$env:PATH;$gtkPath\bin", [System.EnvironmentVariableTarget]::Process)
+        echo "GTK_PATH=$gtkPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Install Rust target
-      run: rustup target add i686-pc-windows-gnu
+      run: rustup target add i686-pc-windows-msvc
 
     - name: Build the project
-      run: cargo build --target i686-pc-windows-gnu --release
+      run: cargo build --target i686-pc-windows-msvc --release
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: windows-32bit-release
-        path: target/i686-pc-windows-gnu/release/printer_test.exe
+        path: target/i686-pc-windows-msvc/release/printer_test.exe
+
+
