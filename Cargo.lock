@@ -620,7 +620,6 @@ version = "0.1.0"
 dependencies = [
  "diesel",
  "gdk",
- "glib",
  "gtk",
  "openssl-sys",
  "pq-sys",

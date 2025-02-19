@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 printers = "2.1.2"
 gdk = "0.18"
-glib = "0.18"
 gtk = { version = "0.18", features = ["v3_24"] }
 diesel = { version = "2.2.0", features = ["postgres"] }
 pq-sys = { version = "0.6", features = ["bundled"] }
