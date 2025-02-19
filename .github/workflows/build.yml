@@ -36,7 +36,7 @@ jobs:
       run: cargo build --target i686-pc-windows-gnu --release
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: windows-32bit-release
         path: target/i686-pc-windows-gnu/release/printer_test.exe
