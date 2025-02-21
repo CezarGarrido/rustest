@@ -13,18 +13,39 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+      
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: "i686-pc-windows-msvc"
+      
       - name: CI-Build
         run: cargo build --release --target=i686-pc-windows-msvc
+      
       - name: Copy Build Artifact
         run: |
           mkdir out 
           cp target/i686-pc-windows-msvc/release/*.exe out/
+      
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: release_i686-pc-windows-msvc
           path: out
+      
+      - name: Create GitHub Release if Not Exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "Creating release"
+            gh release create "${{ github.ref_name }}" --repo "${{ github.repository }}" --generate-notes
+          else
+            echo "Release already exists"
+          fi
+      
+      - name: Upload Artifacts to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" out/*.exe --repo "${{ github.repository }}"
