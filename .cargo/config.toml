@@ -1,8 +1,5 @@
-[build]
-target = "i686-pc-windows-msvc"
-
 [target.i686-pc-windows-msvc]
 rustflags = [
 	"-C", "target-feature=+crt-static",
-    "-C",  "link-args=/SUBSYSTEM:WINDOWS,5.01"
+    "-C", "link-args=/SUBSYSTEM:CONSOLE,5.01"
 ]

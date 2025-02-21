@@ -3,6 +3,7 @@ use fltk::{
 };
 
 fn main() {
+    println!("Iniciando...");
     let app = app::App::default();
     let mut wind = Window::new(100, 100, 400, 300, "FLTK Printer Example");
     let mut but = Button::new(150, 125, 100, 40, "Print");

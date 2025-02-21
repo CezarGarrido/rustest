@@ -32,20 +32,32 @@ jobs:
         with:
           name: release_i686-pc-windows-msvc
           path: out
-      
-      - name: Create GitHub Release if Not Exists
+
+  github-release:
+    name: GitHub Release
+    needs: [build-msvc32]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Download windows-msvc
+        uses: actions/download-artifact@v4
+        with:
+          name: release_i686-pc-windows-msvc
+          path: out
+      - name: Create GitHub Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if ! gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
-            echo "Creating release"
-            gh release create "${{ github.ref_name }}" --repo "${{ github.repository }}" --generate-notes
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          if gh release view '${{ github.ref_name }}' --repo '${{ github.repository }}'; then
+            echo "Release exists"
           else
-            echo "Release already exists"
+            echo "Creating release"
+            gh release create '${{ github.ref_name }}' --repo '${{ github.repository }}' --generate-notes
           fi
-      
-      - name: Upload Artifacts to GitHub Release
+      - name: Upload ZIPs to GitHub Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
           gh release upload "${{ github.ref_name }}" out/*.exe --repo "${{ github.repository }}"
