@@ -20,7 +20,7 @@ jobs:
           targets: "i686-pc-windows-msvc"
       
       - name: CI-Build
-        run: cargo build --release --target=i686-pc-windows-msvc
+        run: cargo build --release --target=i686-pc-windows-msvc RUSTFLAGS="-C target-feature=+crt-static -C link-args=/SUBSYSTEM:WINDOWS,5.01"
       
       - name: Copy Build Artifact
         run: |
