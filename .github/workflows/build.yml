@@ -8,42 +8,40 @@ on:
 jobs:
   build-msvc32:
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Install dependencies
+
+      - name: Install pkg-config
         run: choco install pkgconfiglite -y
 
-      - name: Install vcpkg manually
+      - name: Install vcpkg
         run: |
-          git clone https://github.com/microsoft/vcpkg.git C:/vcpkg
-          cd C:/vcpkg
-          ./bootstrap-vcpkg.bat
+          if (Test-Path 'C:\vcpkg') { Remove-Item -Recurse -Force 'C:\vcpkg' }
+          git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+          cd C:\vcpkg
+          .\bootstrap-vcpkg.bat
 
       - name: Install glib via vcpkg
-        run: C:/vcpkg/vcpkg install glib:x86-windows
+        run: C:\vcpkg\vcpkg.exe install glib:x86-windows
 
-      - name: Set vcpkg Environment
+      - name: Set environment variables
         run: |
-          echo "VCPKG_ROOT=C:/vcpkg" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=C:/vcpkg/installed/x86-windows/lib/pkgconfig" >> $GITHUB_ENV
-          echo "PKG_CONFIG_SYSROOT_DIR=C:/vcpkg/installed/x86-windows" >> $GITHUB_ENV
-          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
+          echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
+          echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x86-windows\lib\pkgconfig" >> $env:GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR=C:\vcpkg\installed\x86-windows" >> $env:GITHUB_ENV
+          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $env:GITHUB_ENV
 
-      - name: CI-Build
+      - name: Build project
         run: |
-          set GLIB_2_0_NO_PKG_CONFIG=1
+          $env:GLIB_2_0_NO_PKG_CONFIG=1
           cargo build --release --target=i686-pc-windows-msvc
 
-      - name: Copy Build Artifact
+      - name: Copy build artifact
         run: |
-          mkdir out 
-          cp target/i686-pc-windows-msvc/release/*.exe out/
-      
-      - name: Upload a Build Artifact
+          mkdir out
+          Copy-Item target\i686-pc-windows-msvc\release\*.exe out\
+
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: release_i686-pc-windows-msvc
