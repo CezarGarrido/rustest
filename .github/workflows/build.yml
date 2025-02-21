@@ -14,14 +14,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: "i686-pc-windows-msvc"
-      
+      - name: Install dependencies
+        run: |
+          choco install pkgconfiglite -y
+          choco install vcpkg -y
+
+      - name: Set Environment Variables
+        run: |
+          echo "PKG_CONFIG_PATH=C:/vcpkg/installed/x86-windows/lib/pkgconfig" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR=C:/vcpkg/installed/x86-windows" >> $GITHUB_ENV
+          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
+
+      - name: Install glib via vcpkg
+        run: |
+          vcpkg install glib:x86-windows
+
+      - name: Set vcpkg Environment
+        run: |
+          echo "VCPKG_ROOT=C:/vcpkg" >> $GITHUB_ENV
+
       - name: CI-Build
-        run: cargo build --release --target=i686-pc-windows-msvc
-      
+        run: |
+          cargo build --release --target=i686-pc-windows-msvc
+
       - name: Copy Build Artifact
         run: |
           mkdir out 
